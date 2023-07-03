@@ -27,6 +27,35 @@ class compressor(object):
         self.input_file = input_file
         self.output_file = output_file
 
+    def calculate_compression(self):
+        img, dimention = self.open_image()
+        cont = 0
+        for p in range(0, 3):
+            last = img[0][p]
+            for pixel in img:
+                if pixel[p] != last:
+                    last = pixel[p]
+                    cont += 1
+
+
+        print('Compressor localizacao em bit e reparticao de cores', 
+              '%0.2f' % (100 * (1 - ((cont + 3*len(img)//8)/(len(img)*3)))))
+        print('Compressor sem localizacao em bit e reparticao de cores', 
+              '%0.2f' % (100 * (1 - ((cont*2)/(len(img)*3)))))
+
+        cont = 0
+        last = img[0]
+        for pixel in img:
+            if (pixel != last).any():
+                last = pixel
+                cont += 1
+
+
+        print('Compressor localizacao em bit sem reparticao de cores',
+              '%0.2f' % (100 * (1 - ((cont*3 + len(img)//8))/(len(img)*3))))
+        print('Compressor sem localizacao em bit sem reparticao de cores',
+              '%0.2f' % (100 * (1 - ((cont*3 + cont))/(len(img)*3))))
+
     def open_image(self):
         image = cv.imread(self.input_file)
         assert image is not None, 'imagem nao pode ser aberta'
@@ -36,7 +65,6 @@ class compressor(object):
         print('dimessao da imagem: ', dimention)
         ret_img = image.reshape(image.shape[0]*image.shape[1], 3)
         return ret_img, dimention 
-
 
     def write_file(self, values, b_matriz, dimention):
         out = open(self.output_file, 'wb')
@@ -68,36 +96,6 @@ class compressor(object):
             out.write(rest.to_bytes(1))
             for byte in compress_vector:
                 out.write(byte.to_bytes(1))
-            
-
-    def calculate_compression(self):
-        img, dimention = self.open_image()
-        cont = 0
-        for p in range(0, 3):
-            last = img[0][p]
-            for pixel in img:
-                if pixel[p] != last:
-                    last = pixel[p]
-                    cont += 1
-
-
-        print('Compressor localizacao em bit e reparticao de cores', 
-              '%0.2f' % (100 * (1 - ((cont + 3*len(img)//8)/(len(img)*3)))))
-        print('Compressor sem localizacao em bit e reparticao de cores', 
-              '%0.2f' % (100 * (1 - ((cont*2)/(len(img)*3)))))
-
-        cont = 0
-        last = img[0]
-        for pixel in img:
-            if (pixel != last).any():
-                last = pixel
-                cont += 1
-
-
-        print('Compressor localizacao em bit sem reparticao de cores',
-              '%0.2f' % (100 * (1 - ((cont*3 + len(img)//8))/(len(img)*3))))
-        print('Compressor sem localizacao em bit sem reparticao de cores',
-              '%0.2f' % (100 * (1 - ((cont*6))/(len(img)*3))))
 
     def map_color(self, img, p, values):
         values.append(img[0][p])
