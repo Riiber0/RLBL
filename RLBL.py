@@ -27,6 +27,15 @@ class compressor(object):
         self.input_file = input_file
         self.output_file = output_file
 
+    def open_image(self):
+        image = cv.imread(self.input_file)
+        assert image is not None, 'imagem nao pode ser aberta'
+        print('imagem aberta')
+        dimention = [image.shape[0], image.shape[1]]
+        print('dimessao da imagem: ', dimention)
+        ret_img = image.reshape(image.shape[0]*image.shape[1], 3)
+        return ret_img, dimention 
+
     def calculate_compression(self):
         img, dimention = self.open_image()
         cont = 0
@@ -50,21 +59,10 @@ class compressor(object):
                 last = pixel
                 cont += 1
 
-
         print('Compressor localizacao em bit sem reparticao de cores',
               '%0.2f' % (100 * (1 - ((cont*3 + len(img)//8))/(len(img)*3))))
         print('Compressor sem localizacao em bit sem reparticao de cores',
               '%0.2f' % (100 * (1 - ((cont*3 + cont))/(len(img)*3))))
-
-    def open_image(self):
-        image = cv.imread(self.input_file)
-        assert image is not None, 'imagem nao pode ser aberta'
-        print('imagem aberta')
-        print(image.shape)
-        dimention = [image.shape[0], image.shape[1]]
-        print('dimessao da imagem: ', dimention)
-        ret_img = image.reshape(image.shape[0]*image.shape[1], 3)
-        return ret_img, dimention 
 
     def write_file(self, values, b_matriz, dimention):
         out = open(self.output_file, 'wb')
