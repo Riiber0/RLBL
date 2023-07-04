@@ -10,3 +10,5 @@ wget https://imagecompression.info/test_images/rgb8bit.zip
 
 Também disponivel em:
 [Dataset](https://imagecompression.info/test_images/)
+
+**Esta pasta é apenas usada para organização, você pode usar images de qualquer pasta do seu sistema
