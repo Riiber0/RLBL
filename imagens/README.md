@@ -1,4 +1,4 @@
-#Dataset utilizado
+# Dataset utilizado
 
 Neste projeto foi utilizado dataset publico "The New Test Images", este dataset oferece imagens sem compressão para testes de compressão de imagens
 
