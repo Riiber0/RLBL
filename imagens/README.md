@@ -1,6 +1,6 @@
 # Dataset utilizado
 
-Neste projeto foi utilizado dataset publico "The New Test Images", este dataset oferece imagens sem compressão para testes de compressão de imagens
+Neste projeto foi utilizado dataset publico "The New Test Images", este dataset oferece imagens, nunca passadas por nenhum processo de compactação com perda, para testes de compressão de imagem
 
 Para baixa-lo use o comando:
 
