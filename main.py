@@ -23,7 +23,9 @@ def generate_args():
 
 if __name__ == '__main__':
     args = generate_args()
-    cpr = RLBL.compressor(args.i, args.o)
+
+    if args.e or args.c:
+        cpr = RLBL.compressor(args.i, args.o)
 
     if args.e:
         cpr.calculate_compression()
@@ -31,5 +33,6 @@ if __name__ == '__main__':
     if args.c:
         cpr.compress()
     elif args.d:
-        img = dpr.decompress()
+        dpr = RLBL.
+        img = dpr.descompressor(args.i, args.o)
         cv.imwrite('sus.bmp', img)
