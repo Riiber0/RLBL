@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import io
+from collections import deque
 
 """
  0             1               2               3               4
@@ -74,14 +75,17 @@ class compressor(object):
         for value in values:
             out.write(value)
 
+        rest = (dimention[0]*dimention[1])%8
+        print('resto', rest)
+
+        out.write(rest.to_bytes(1))
+
         for data in b_matriz:
-            rest = 0
-            if len(data)%8 != 0:
-                rest = len(data)%8
-                for i in range(0, 8 - rest):
-                    data.append(0)
+            for i in range(0, 8 - rest):
+                data.append(0)
 
             data = [data[8*i:8*(i+1)] for i in range(len(data)//8)]
+            print(len(data))
 
             compress_vector = list()
             for byte in data:
@@ -91,7 +95,6 @@ class compressor(object):
                     aux += bit
                 compress_vector.append(aux)
 
-            out.write(rest.to_bytes(1))
             for byte in compress_vector:
                 out.write(byte.to_bytes(1))
 
@@ -121,39 +124,17 @@ class compressor(object):
             aux = self.map_color(img, i, values)
             b_matriz.append(aux)
 
-        """
-        print([col[0] for col in img])
-        print(r)
-        print(values)
-        """
-        # print('%0.2f' % (100 * (1 - (len(values) + len(r)//8 + len(g)//8 + len(b)//8) / (len(img)*3))))
-
-        """
-        index = 0
-        dec = list()
-        dec.append(values[0])
-        for bit in r:
-            if bit != 0:
-                index += 1
-            dec.append(values[index])
-
-        print(dec)
-        """
         self.write_file(values, b_matriz, dimention)
 
 class descompressor(object):
 
-    """Descompressor de imagem PIT"""
-
-    def __init__(self, input_file, output_file):
+    def __init__(self, input_file):
         """
 
-        :input_file: arquivo .pit
-        :output_file: arquivo de imagem aceito por open cv
+        :input_file: arquivo
 
         """
         self.input_file = input_file
-        self.output_file = output_file
 
     def decompress(self):
         file = open(self.input_file, 'rb')
@@ -162,51 +143,45 @@ class descompressor(object):
         largura = int.from_bytes(file.read(2))
         print('dimensao da imagem:', altura, largura)
         pixel_amount = altura*largura
+        print('quantidade de pixel', pixel_amount)
 
         values_len = int.from_bytes(file.read(4))
-        values = list(file.read(values_len))
+        values = deque(list(file.read(values_len)))
 
+        rest = int.from_bytes(file.read(1))
+        print('redto', rest)
 
         ret_img = np.zeros((pixel_amount, 3))
         for i in range(0, 3):
             img_index = 0
-            value = values.pop(0)
-            rest = int.from_bytes(file.read(1))
-            print(rest)
+            value = values.popleft()
 
-            buff = list(file.read(pixel_amount//8 -1))
-            print(len(buff))
+            buff = list(file.read(pixel_amount//8 ))
+            print('tamanho do buffer lido',len(buff))
             for byte in buff:
-                for bit in range(7, -1, -1):
-                    if (byte >> bit) & 1 == 1:
-                        value = values.pop(0)
+                for bit in range(0, 8):
+                    if byte & 128 == 128:
+                        value = values.popleft()
 
+                    byte = byte << 1
                     ret_img[img_index][i] = value
                     img_index += 1
                 #print(img_index)
 
             
-            if rest != 0:
-                byte = int.from_bytes(file.read(1))
-                for bit in range(0 , rest):
-                    if (byte >> 7-bit) & 1 == 1:
-                        value = values.pop(0)
+            if rest == 0:
+                rest = 8
 
-                    ret_img[img_index][i] = value
-                    img_index += 1
-            else:
-                byte = int.from_bytes(file.read(1))
-                for bit in range(7 , -1, -1):
-                    if (byte >> bit) & 1 == 1:
-                        value = values.pop(0)
+            byte = int.from_bytes(file.read(1))
+            for bit in range(0 , rest):
+                if byte & 128 == 128:
+                    value = values.popleft()
 
-                    ret_img[img_index][i] = value
-                    img_index += 1
-            
-
+                byte << 1
+                ret_img[img_index][i] = value
+                img_index += 1
 
         ret_img = ret_img.reshape(altura, largura, 3)
         ret_img = ret_img.astype(int)
-        #print(ret_img)
         return ret_img
         

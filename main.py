@@ -33,6 +33,6 @@ if __name__ == '__main__':
     if args.c:
         cpr.compress()
     elif args.d:
-        dpr = RLBL.
-        img = dpr.descompressor(args.i, args.o)
-        cv.imwrite('sus.bmp', img)
+        dpr = RLBL.descompressor(args.i)
+        img = dpr.decompress()
+        cv.imwrite(args.o, img)
