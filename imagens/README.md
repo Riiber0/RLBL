@@ -8,6 +8,14 @@ Para baixa-lo use o comando:
 wget https://imagecompression.info/test_images/rgb8bit.zip
 ```
 
+E extraia as imagens usando:
+
+```bash
+unzip rgb8bit.zip
+```
+
+ou programa de sua preferencia
+
 Também disponivel em:
 [Dataset](https://imagecompression.info/test_images/)
 
